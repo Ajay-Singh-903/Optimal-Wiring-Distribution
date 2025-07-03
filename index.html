@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Optimal Electricity Distribution</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+
+
+    .left-panel {
+      width: 30%;
+      background: #f7f9fc;
+      padding: 20px;
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .left-panel h3 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .left-panel input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .button {
+      display: inline-block;
+      margin: 6px 4px 6px 0;
+      padding: 10px 14px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    .button.danger {
+      background-color: #dc3545;
+    }
+
+    .button.danger:hover {
+      background-color: #c82333;
+    }
+
+    .button.secondary {
+      background-color: #6c757d;
+    }
+
+    .button.secondary:hover {
+      background-color: #545b62;
+    }
+
+    .info-box {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .backup-info {
+      background-color: #f8f9fa;
+      border-left: 4px solid #9400D3;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .failure-analysis {
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .right-panel {
+      width: 70%;
+      height: 100vh;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .marker-label {
+      background: white;
+      border: 2px solid #333;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .backup-edge {
+      animation: backupPulse 2s infinite;
+    }
+
+    @keyframes backupPulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    .instructions {
+      background-color: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+<div id="login-root" style="position: absolute; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;"></div>
+
+  <div class="left-panel">
+    <h3>⚡ Optimal Electricity Distribution</h3>
+
+    <div class="instructions" style="margin-top: 15px; font-size: 13px; line-height: 1.8; background: #f0f8ff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <strong>📌 Instructions:</strong><br><br>
+      🏠 <strong>Step 1:</strong> Click <button style="padding: 2px 8px; font-size: 12px;">Add House</button> and then tap on the 🗺 map to place houses.<br>
+      💰 <strong>Step 2:</strong> Enter the <strong>Cost per Meter</strong> 💵 and click <button style="padding: 2px 8px; font-size: 12px;">Generate MST</button> ⚡ to compute optimal wiring.<br>
+      🔧 <strong>Step 3:</strong> Simulate a failure by clicking any <span style="color: blue; font-weight: bold;">blue</span> 🔵 edge.<br>
+      🛠 <strong>Step 4:</strong> Watch for <span style="color: purple; font-weight: bold;">purple</span> 🟣 backup connections drawn automatically.<br><br>
+      🧠 <em>Tip:</em> Hover over edges to view distance & cost!<br>
+    </div>
+    
+
+    <label>Cost per meter (₹):</label>
+    <input type="number" id="costPerMeter" placeholder="e.g. 5" />
+
+    <button class="button" onclick="enableAddMode()">➕ Add House</button>
+    <button class="button" onclick="sendNodesAndDrawMST()">🧮 Generate MST</button>
+    <button class="button secondary" onclick="clearBackup()">🚫 Clear Backup</button>
+    <button class="button danger" onclick="resetMap()">🔁 Reset</button>
+    <button class="button" onclick="downloadResult()">⬇ Download Result</button>
+
+    <div id="results" class="info-box" style="display: none;"></div>
+
+    <div id="backupResults" class="backup-info" style="display: none;"></div>
+
+    <div id="failureAnalysis" class="failure-analysis" style="display: none;"></div>
+
+    <div class="info-box">
+      <strong>Legend:</strong><br />
+      🔵 MST Edge (clickable)<br />
+      🟢 Connection to Substation<br />
+      🔴 Failed Edge<br />
+      🟣 Backup Edge<br />
+      ⚡ Substation
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="main.js"></script>
+  <script type="text/babel">
+
+function Login({ onLogin }) {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [error, setError] = React.useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (username === 'admin' && password === '1234') {
+      onLogin();
+    } else {
+      setError("Invalid credentials");
+    }
+  };
+
+  return (
+    <div style={{ background: 'white', padding: 30, borderRadius: 10, boxShadow: '0 4px 10px rgba(0,0,0,0.3)', width: 300 }}>
+      <h3 style={{ marginBottom: 20 }}>Login</h3>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Username"
+          style={{ width: '100%', padding: 8, marginBottom: 10 }}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        /><br />
+        <input
+          type="password"
+          placeholder="Password"
+          style={{ width: '100%', padding: 8, marginBottom: 10 }}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        /><br />
+        <button type="submit" style={{ width: '100%', padding: 10, background: '#007bff', color: 'white', border: 'none', borderRadius: 5 }}>
+          Login
+        </button>
+        {error && <p style={{ color: 'red', fontSize: 13, marginTop: 10 }}>{error}</p>}
+      </form>
+    </div>
+  );
+}
+
+function App() {
+  const [loggedIn, setLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    if (loggedIn) {
+      document.getElementById('login-root').style.display = 'none';
+    }
+  }, [loggedIn]);
+
+  return !loggedIn ? <Login onLogin={() => setLoggedIn(true)} /> : null;
+}
+
+ReactDOM.render(<App />, document.getElementById('login-root'));
+
+</script>
+
+</body>
+</html>
