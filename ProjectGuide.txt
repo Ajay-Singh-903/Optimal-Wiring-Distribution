@@ -1,0 +1,112 @@
+# MST VISUALIZER – PROJECT GUIDE
+
+This project visualizes the Minimum Spanning Tree (MST) using a C++ backend and a Flask-based Python server with an HTML frontend.
+
+## PREREQUISITES
+
+Make sure the following are installed on your system:
+
+1. Python
+2. g++ / MinGW
+3. A web browser
+
+## PROJECT SETUP AND RUNNING
+
+## STEP 1: CREATE AND ACTIVATE VIRTUAL ENVIRONMENT
+
+Open PowerShell in the project folder.
+
+Create the virtual environment:
+
+python -m venv venv
+
+Activate the virtual environment:
+
+.\venv\Scripts\activate
+
+After successful activation, "(venv)" should appear at the beginning of the terminal prompt.
+
+## STEP 2: INSTALL REQUIRED PYTHON PACKAGES
+
+Install Flask and Flask-CORS:
+
+pip install flask flask-cors
+
+Flask is used to run the backend server, while Flask-CORS allows communication between the frontend and backend.
+
+## STEP 3: COMPILE THE C++ CODE
+
+Compile the MST C++ program using:
+
+g++ mst.cpp -o mst
+
+This will generate the executable file:
+
+mst.exe
+
+The C++ program performs the Minimum Spanning Tree (MST) computation.
+
+## STEP 4: RUN THE FLASK SERVER
+
+Start the Flask backend using:
+
+python app.py
+
+Keep this terminal running while using the application.
+
+The Flask server will normally run at:
+
+http://127.0.0.1:5000
+
+## STEP 5: RUN THE HTML FRONTEND
+
+Open the project folder in File Explorer.
+
+Locate the HTML file and double-click it to open it in your web browser.
+
+The HTML frontend communicates with the Flask backend running in Step 4.
+
+## COMPLETE COMMANDS
+
+Run the following commands in order:
+
+python -m venv venv
+
+.\venv\Scripts\activate
+
+pip install flask flask-cors
+
+g++ mst.cpp -o mst
+
+python app.py
+
+## IMPORTANT
+
+1. Always activate the virtual environment before running the Flask application.
+2. Make sure the C++ code is compiled before starting the application.
+3. Keep the Flask server running while using the HTML frontend.
+4. If the Flask server is stopped, the frontend will not be able to communicate with the backend.
+5. Open the HTML file only after the Flask server has been started.
+
+## PROJECT STRUCTURE
+
+A typical project structure is:
+
+mst_visualizer/
+│
+├── mst.cpp
+├── mst.exe
+├── app.py
+├── index.html
+├── venv/
+└── PROJECT GUIDE.txt
+
+## RUN ORDER
+
+1. Activate virtual environment
+2. Install dependencies
+3. Compile C++ code
+4. Start Flask server
+5. Open the HTML file in a browser
+
+END
