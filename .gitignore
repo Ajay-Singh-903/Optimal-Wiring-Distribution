@@ -9,7 +9,7 @@ __pycache__/
 # C++ compiled executable
 mst.exe
 
-# VS Code settings
+# Vs Code settings
 .vscode/
 
 # OS generated files
