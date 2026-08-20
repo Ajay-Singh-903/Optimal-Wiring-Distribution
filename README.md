@@ -8,7 +8,7 @@ The application allows users to place houses on an interactive map, specify the 
 
 ## 📌 Project Overview
 
-The **Optimal Electricity Distribution** system is designed to minimize the total wiring distance and associated installation cost while connecting multiple houses to an electricity distribution network.
+The **Optimal Electricity Distribution** system is designed to minimize the total wiring distance and associated installation cost by connecting multiple houses to an electricity distribution network.
 
 The application combines:
 
